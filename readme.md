@@ -116,11 +116,13 @@ FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템
      "company": "삼성전자",
      "query_type": "report_content",
      "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
-     "corp_code": "00126380",
      "bsns_year": "2023",
      "reprt_code": "11011"
    }
    ```
+   
+   **참고:**
+   - `corp_code`는 선택적으로 입력 가능합니다. 입력하지 않으면 `company` 값을 기준으로 자동 조회합니다.
    
    **보고서 코드(reprt_code) 값:**
    - "11011": 사업보고서 (연간)
