@@ -49,6 +49,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 2. 환경 변수 설정:
    ```bash
    export DART_API_KEY="your_dart_api_key"
+   export REQUIRED_AUTH_KEY="your_auth_key"
    ```
 
 3. 서버 실행:
@@ -67,9 +68,9 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
    - **Environment**: Python
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT --workers 4`
-5. 환경 변수 설정 (선택사항):
+5. 환경 변수 설정:
    - `DART_API_KEY`: 금융감독원에서 발급받은 DART API 키
-   - 참고: DART API 키가 없어도 API 서버는 시작되지만, 실제 DART 데이터를 조회할 때 키가 필요합니다.
+   - `REQUIRED_AUTH_KEY`: API 접근을 위한 인증키
 6. 서비스 생성 버튼을 클릭하세요.
 
 ### render.yaml 사용 방식
@@ -79,22 +80,23 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 1. GitHub 리포지토리에 `render.yaml` 파일이 있는지 확인하세요.
 2. Render.com Dashboard에서 "Blueprint" 옵션을 선택하세요.
 3. GitHub 리포지토리를 연결하세요.
-4. 환경 변수를 설정하세요 (선택사항):
+4. 환경 변수를 설정하세요:
    - `DART_API_KEY`: 금융감독원에서 발급받은 DART API 키
+   - `REQUIRED_AUTH_KEY`: API 접근을 위한 인증키
 5. Apply 버튼을 클릭하여 배포를 시작하세요.
 
 ## 인증
 
 모든 API 요청은 인증키를 포함해야 합니다. 통합 API(`/api/dart`)는 요청 본문에 인증키를 포함해야 하며, 파일 URL 조회 API는 쿼리 파라미터로 인증키를 전달해야 합니다.
 
-유효한 인증키: `linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
+인증키는 환경변수 `REQUIRED_AUTH_KEY`에서 설정됩니다. 인증키가 일치하지 않으면 API 호출이 거부됩니다.
 
 예시:
 ```json
 {
   "company": "삼성전자",
   "query_type": "disclosure",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "start_date": "20250101"
 }
 ```
@@ -109,7 +111,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 
 ### 2. 첨부파일 다운로드 URL 조회
 
-**GET** `/api/dart/file/{rcept_no}?auth_key=linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
+**GET** `/api/dart/file/{rcept_no}?auth_key=your_auth_key`
 
 특정 공시 보고서의 첨부파일 다운로드 URL을 제공합니다. 인증키는 쿼리 파라미터로 전달합니다.
 
@@ -120,7 +122,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "disclosure",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "start_date": "20250101",
   "end_date": "20250401",
   "kind": "A",
@@ -159,7 +161,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "report",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "start_date": "20250101",
   "end_date": "20250401"
 }
@@ -170,7 +172,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "company_info",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -179,7 +181,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "company",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -188,7 +190,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "report_content",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "bsns_year": "2023",
   "reprt_code": "11011"
 }
@@ -205,7 +207,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "company_code",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -214,7 +216,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "major_shareholder",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -223,7 +225,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "major_shareholder_exec",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -232,7 +234,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "executive",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -241,7 +243,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "dividend",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -250,7 +252,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "capital",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -259,7 +261,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "section_financial",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "bsns_year": "2023",
   "fs_div": "CFS"
 }
@@ -273,7 +275,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "full_financial",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "bsns_year": "2023",
   "reprt_code": "11011",
   "separate": false
@@ -288,7 +290,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "report_key",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "bsns_year": "2023",
   "key_word": "배당",
   "reprt_code": "11011"
@@ -315,7 +317,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "disclosure_date",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "date": "20230501"
 }
 ```
@@ -328,7 +330,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "disclosure_date_ex",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "date": "20230501"
 }
 ```
@@ -342,7 +344,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "disclosure_ticker",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "start_date": "20230101",
   "end_date": "20230630"
 }
@@ -359,7 +361,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "sub_docs",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "rcept_no": "20230515001050"
 }
 ```
@@ -372,7 +374,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "attach_docs",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "rcept_no": "20230515001050"
 }
 ```
@@ -385,7 +387,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "attach_files",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "rcept_no": "20230515001050"
 }
 ```
@@ -398,7 +400,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "download",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "rcept_no": "20230515001050"
 }
 ```
@@ -411,7 +413,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "document",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "rcept_no": "20230515001050"
 }
 ```
@@ -425,7 +427,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "retrieve",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "rcept_no": "20230515001050",
   "extract_text": true
 }
@@ -440,7 +442,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자", 
   "query_type": "multi_financial",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "corp_codes": "00126380,00164779,00164742",
   "bsns_year": "2023",
   "reprt_code": "11011",
@@ -457,7 +459,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "audit",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "includes_exec": false
 }
 ```
@@ -470,7 +472,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "stock_suspension",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -479,7 +481,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "stock_change",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+  "auth_key": "your_auth_key"
 }
 ```
 
@@ -488,7 +490,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "biz_overview",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "bsns_year": "2023",
   "rpt_type": "1"
 }
@@ -502,7 +504,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "event",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "event_type": "유상증자",
   "start_date": "20230101",
   "end_date": "20231231"
@@ -522,7 +524,7 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 {
   "company": "삼성전자",
   "query_type": "regstate",
-  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "auth_key": "your_auth_key",
   "key_word": "지분증권",
   "start_date": "20230101",
   "end_date": "20231231"
