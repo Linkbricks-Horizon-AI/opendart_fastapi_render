@@ -1,0 +1,173 @@
+# DART Financial Data API
+
+FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템의 기업 공시 정보에 접근할 수 있는 API입니다.
+
+## 기능
+
+1. 기업 공시 정보 조회
+2. 정기 보고서 조회
+3. 기업 개황 정보 조회
+4. 첨부 파일 URL 조회
+5. 사업보고서 내용 조회
+6. 기업 고유번호 조회
+
+## 설치 및 실행
+
+### 로컬 환경에서 실행
+
+1. 필요한 패키지 설치:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. 환경 변수 설정:
+   ```bash
+   export DART_API_KEY="your_dart_api_key"
+   export API_KEY="your_api_access_key"
+   ```
+
+3. 서버 실행:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+## Render.com에 배포하기
+
+### GitHub 리포지토리 연동 방식
+
+1. Render.com 계정에 로그인하세요.
+2. 새로운 웹 서비스(New Web Service) 생성을 선택하세요.
+3. GitHub 리포지토리를 연결하세요.
+4. 설정:
+   - **Environment**: Python
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. 환경 변수 설정:
+   - `DART_API_KEY`: 금융감독원에서 발급받은 DART API 키
+6. 서비스 생성 버튼을 클릭하세요.
+
+### render.yaml 사용 방식
+
+프로젝트에 `render.yaml` 파일을 포함시켜 배포할 수도 있습니다:
+
+1. GitHub 리포지토리에 `render.yaml` 파일이 있는지 확인하세요.
+2. Render.com Dashboard에서 "Blueprint" 옵션을 선택하세요.
+3. GitHub 리포지토리를 연결하세요.
+4. 환경 변수를 설정하세요 (DART_API_KEY).
+5. Apply 버튼을 클릭하여 배포를 시작하세요.
+
+## API 엔드포인트
+
+### 1. 통합 DART 조회 API
+
+**POST** `/api/dart`
+
+통합 엔드포인트로 `query_type` 파라미터를 통해 다양한 조회 기능을 제공합니다.
+
+요청 본문 예시:
+```json
+{
+  "company": "삼성전자",
+  "query_type": "disclosure",
+  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "start_date": "20250101",
+  "end_date": "20250401"
+}
+```
+
+`query_type` 값에 따른 기능:
+
+1. **공시정보 조회** (`"query_type": "disclosure"`)
+   ```json
+   {
+     "company": "삼성전자",
+     "query_type": "disclosure",
+     "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+     "start_date": "20250101",
+     "end_date": "20250401"
+   }
+   ```
+
+2. **정기 최종 보고서 조회** (`"query_type": "report"`)
+   ```json
+   {
+     "company": "삼성전자",
+     "query_type": "report",
+     "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+     "start_date": "20250101",
+     "end_date": "20250401"
+   }
+   ```
+
+3. **기업 개황정보 조회** (`"query_type": "company_info"`)
+   ```json
+   {
+     "company": "삼성전자",
+     "query_type": "company_info",
+     "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+   }
+   ```
+
+4. **사업보고서 내용 조회** (`"query_type": "report_content"`)
+   ```json
+   {
+     "company": "삼성전자",
+     "query_type": "report_content",
+     "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+     "corp_code": "00126380",
+     "bsns_year": "2024",
+     "reprt_code": "11011"
+   }
+   ```
+
+5. **기업 고유번호 조회** (`"query_type": "company_code"`)
+   ```json
+   {
+     "company": "삼성전자",
+     "query_type": "company_code",
+     "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+   }
+   ```
+
+### 2. 첨부파일 다운로드 URL 조회
+
+**GET** `/api/dart/file/{rcp_no}?auth_key=linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
+
+특정 공시 보고서의 첨부파일 다운로드 URL을 제공합니다. 인증키는 쿼리 파라미터로 전달합니다.
+
+## 인증
+
+모든 API 요청은 인증키를 포함해야 합니다. 통합 API(`/api/dart`)는 요청 본문에 인증키를 포함해야 하며, 파일 URL 조회 API는 쿼리 파라미터로 인증키를 전달해야 합니다.
+
+유효한 인증키: `linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
+
+예시:
+```json
+{
+  "company": "삼성전자",
+  "query_type": "disclosure",
+  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "start_date": "20250101"
+}
+```
+
+## 응답 형식
+
+성공적인 응답:
+```json
+{
+  "status": "success",
+  "data": [...]
+}
+```
+
+오류 응답:
+```json
+{
+  "detail": "오류 메시지"
+}
+```
+
+## OpenDartReader 라이브러리
+
+이 API는 [OpenDartReader](https://github.com/FinanceData/OpenDartReader) 라이브러리를 사용하여 DART 시스템에 접근합니다. 더 자세한 정보는 해당 라이브러리의 문서를 참조하세요.
