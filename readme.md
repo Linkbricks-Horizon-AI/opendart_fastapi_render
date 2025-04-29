@@ -42,8 +42,9 @@ FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템
    - **Environment**: Python
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-5. 환경 변수 설정:
+5. 환경 변수 설정 (선택사항):
    - `DART_API_KEY`: 금융감독원에서 발급받은 DART API 키
+   - 참고: DART API 키가 없어도 API 서버는 시작되지만, 실제 DART 데이터를 조회할 때 키가 필요합니다.
 6. 서비스 생성 버튼을 클릭하세요.
 
 ### render.yaml 사용 방식
@@ -53,7 +54,8 @@ FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템
 1. GitHub 리포지토리에 `render.yaml` 파일이 있는지 확인하세요.
 2. Render.com Dashboard에서 "Blueprint" 옵션을 선택하세요.
 3. GitHub 리포지토리를 연결하세요.
-4. 환경 변수를 설정하세요 (DART_API_KEY).
+4. 환경 변수를 설정하세요 (선택사항):
+   - `DART_API_KEY`: 금융감독원에서 발급받은 DART API 키
 5. Apply 버튼을 클릭하여 배포를 시작하세요.
 
 ## API 엔드포인트
