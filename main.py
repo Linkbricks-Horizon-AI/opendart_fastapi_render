@@ -1,12 +1,8 @@
 import os
 import json
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from fastapi import FastAPI, HTTPException, Query, Depends
-from fastapi.security import APIKeyHeader
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import OpenDartReader
-import datetime
 import pandas as pd
 from io import BytesIO
 
@@ -24,27 +20,8 @@ SWAGGER_HEADERS = {
 
 app = FastAPI(**SWAGGER_HEADERS)
 
-# CORS 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# API 키 인증 설정
-API_KEY_NAME = "X-API-KEY"
 # 고정 인증키 사용
 REQUIRED_AUTH_KEY = "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
-
-# DART API 키 설정
-DART_API_KEY = os.environ.get("DART_API_KEY")
-
-# OpenDartReader 초기화
-dart = OpenDartReader(DART_API_KEY)
-
-# 인증 의존성 함수 제거 (직접 요청에서 인증키 확인으로 대체)
 
 # 입력 모델 정의
 class DartRequest(BaseModel):
@@ -58,7 +35,7 @@ class DartRequest(BaseModel):
     reprt_code: Optional[str] = None
 
 # Pandas DataFrame을 JSON 변환 함수
-def convert_df_to_json(df):
+def convert_df_to_json(df: pd.DataFrame) -> List[Dict[str, Any]]:
     if df is None or df.empty:
         return []
     
@@ -75,11 +52,20 @@ def convert_df_to_json(df):
 # API 상태 확인용 메인 라우트
 @app.get("/")
 async def root():
-    return {
-        "message": "LINKBRICKS HORIZON-AI DART API에 오신 것을 환영합니다", 
-        "status": "active",
-        "dart_api_key_set": bool(DART_API_KEY)
-    }
+    # OpenDartReader import는 가능한 늦게 수행
+    try:
+        import OpenDartReader
+        return {
+            "message": "LINKBRICKS HORIZON-AI DART API에 오신 것을 환영합니다", 
+            "status": "active",
+            "opendartreader_imported": True
+        }
+    except ImportError:
+        return {
+            "message": "LINKBRICKS HORIZON-AI DART API에 오신 것을 환영합니다", 
+            "status": "active",
+            "opendartreader_imported": False
+        }
 
 # 통합 API 엔드포인트
 @app.post("/api/dart")
@@ -89,8 +75,19 @@ async def query_dart(request: DartRequest):
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
     
     try:
-        # DART API 클라이언트 가져오기
-        dart = get_dart()
+        # 필요할 때만 OpenDartReader 가져오기
+        import OpenDartReader
+        
+        # DART API 키 가져오기 (환경 변수에서)
+        DART_API_KEY = os.environ.get("DART_API_KEY", "")
+        if not DART_API_KEY:
+            raise HTTPException(status_code=500, detail="DART API 키가 설정되지 않았습니다. 환경 변수 DART_API_KEY를 설정해주세요.")
+        
+        # 매 요청마다 새 클라이언트 인스턴스 생성
+        try:
+            dart = OpenDartReader(DART_API_KEY)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"DART API 연결 실패: {str(e)}")
             
         # 조회 종류에 따라 다른 처리
         if request.query_type == "disclosure":
@@ -145,6 +142,8 @@ async def query_dart(request: DartRequest):
             
     except HTTPException:
         raise
+    except ImportError:
+        raise HTTPException(status_code=500, detail="OpenDartReader 라이브러리를 불러올 수 없습니다.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"데이터 조회 중 오류 발생: {str(e)}")
 
@@ -156,15 +155,8 @@ async def get_file_url(rcp_no: str, auth_key: str):
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
     
     try:
-        # DART API 클라이언트 초기화 필요 없음
-        # 첨부파일 URL 생성 (OpenDartReader 라이브러리 참조)
+        # 첨부파일 URL 생성 (OpenDartReader 라이브러리 참조 불필요)
         url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcp_no}"
         return {"status": "success", "download_url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"첨부파일 URL 조회 중 오류 발생: {str(e)}")
-
-if __name__ == "__main__":
-    import uvicorn
-    # Render.com에서는 PORT 환경변수를 자동으로 설정합니다
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
