@@ -72,10 +72,14 @@ def convert_df_to_json(df):
     
     return json.loads(df.to_json(orient='records', force_ascii=False))
 
-# 메인 라우트
+# API 상태 확인용 메인 라우트
 @app.get("/")
 async def root():
-    return {"message": "LINKBRICKS HORIZON-AI DART API에 오신 것을 환영합니다"}
+    return {
+        "message": "LINKBRICKS HORIZON-AI DART API에 오신 것을 환영합니다", 
+        "status": "active",
+        "dart_api_key_set": bool(DART_API_KEY)
+    }
 
 # 통합 API 엔드포인트
 @app.post("/api/dart")
@@ -83,8 +87,11 @@ async def query_dart(request: DartRequest):
     # 인증키 확인
     if request.auth_key != REQUIRED_AUTH_KEY:
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
-        
+    
     try:
+        # DART API 클라이언트 가져오기
+        dart = get_dart()
+            
         # 조회 종류에 따라 다른 처리
         if request.query_type == "disclosure":
             # 1. 기업 공시정보 조회
@@ -149,6 +156,7 @@ async def get_file_url(rcp_no: str, auth_key: str):
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
     
     try:
+        # DART API 클라이언트 초기화 필요 없음
         # 첨부파일 URL 생성 (OpenDartReader 라이브러리 참조)
         url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcp_no}"
         return {"status": "success", "download_url": url}
