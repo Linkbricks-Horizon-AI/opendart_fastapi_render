@@ -3,7 +3,6 @@
 LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용하여 한국 금융감독원 DART 시스템의 기업 공시 정보에 접근할 수 있는 API입니다.
 (powered by OpenDartReader)
 
-
 ## 기능
 
 1. 기업 공시 정보 조회 (disclosure)
@@ -27,13 +26,15 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 19. 첨부 문서 리스트 조회 (attach_docs)
 20. 첨부 파일 리스트 조회 (attach_files)
 21. 공시 원문 다운로드 URL 제공 (download)
-22. 다중회사 재무제표 조회 (multi_financial)
-23. 외부감사인 조회 (audit)
-24. 상장폐지 현황 조회 (stock_suspension)
-25. 증자(감자) 현황 조회 (stock_change)
-26. 사업의 내용 조회 (biz_overview)
-27. 주요사항보고서 조회 (event)
-28. 증권신고서 조회 (regstate)
+22. 공시서류 원문 조회 (document)
+23. 공시 원문 텍스트 추출 (retrieve)
+24. 다중회사 재무제표 조회 (multi_financial)
+25. 외부감사인 조회 (audit)
+26. 상장폐지 현황 조회 (stock_suspension)
+27. 증자(감자) 현황 조회 (stock_change)
+28. 사업의 내용 조회 (biz_overview)
+29. 주요사항보고서 조회 (event)
+30. 증권신고서 조회 (regstate)
 
 ## 설치 및 실행
 
@@ -391,11 +392,11 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 **참고:**
 - `rcept_no`는 공시 접수번호를 의미합니다.
 
-### 21. 공시 원문 다운로드 URL 제공 (`download`)
+### 22. 공시서류 원문 조회 (XML) (`document`)
 ```json
 {
   "company": "삼성전자",
-  "query_type": "download",
+  "query_type": "document",
   "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
   "rcept_no": "20230515001050"
 }
@@ -403,6 +404,22 @@ LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용�
 
 **참고:**
 - `rcept_no`는 공시 접수번호를 의미합니다.
+- 결과는 XML 형식으로 반환됩니다.
+
+### 23. 공시 원문 텍스트 추출 (`retrieve`)
+```json
+{
+  "company": "삼성전자",
+  "query_type": "retrieve",
+  "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
+  "rcept_no": "20230515001050",
+  "extract_text": true
+}
+```
+
+**참고:**
+- `rcept_no`는 공시 접수번호를 의미합니다.
+- `extract_text`는 텍스트 추출 여부로, 기본값은 true입니다.
 
 ### 22. 다중회사 재무제표 조회 (`multi_financial`)
 ```json
