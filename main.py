@@ -119,8 +119,12 @@ async def query_dart(request: DartRequest):
             
         elif request.query_type == "report_content":
             # 4. 사업보고서 내용 조회
-            if not (request.corp_code and request.bsns_year and request.reprt_code):
-                raise HTTPException(status_code=400, detail="사업보고서 조회에는 corp_code, bsns_year, reprt_code가 필요합니다.")
+            if not request.corp_code:
+                raise HTTPException(status_code=400, detail="사업보고서 조회에는 기업 고유번호(corp_code)가 필요합니다.")
+            if not request.bsns_year:
+                raise HTTPException(status_code=400, detail="사업보고서 조회에는 사업연도(bsns_year)가 필요합니다.")
+            if not request.reprt_code:
+                raise HTTPException(status_code=400, detail="사업보고서 조회에는 보고서 코드(reprt_code)가 필요합니다. 예: 11011(사업보고서), 11012(반기보고서), 11013(1분기보고서), 11014(3분기보고서)")
             
             result = dart.finstate(request.corp_code, request.bsns_year, request.reprt_code)
             return {"status": "success", "data": convert_df_to_json(result)}
