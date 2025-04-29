@@ -50,6 +50,7 @@ class DartRequest(BaseModel):
     kind: Optional[str] = None  # 공시 유형
     kind_detail: Optional[str] = None  # 공시 상세 유형
     final: Optional[bool] = None  # 최종보고서 여부
+    extract_text: Optional[bool] = None  # 텍스트 추출 여부
 
 # Pandas DataFrame을 JSON 변환 함수
 def convert_df_to_json(df: pd.DataFrame) -> List[Dict[str, Any]]:
@@ -150,6 +151,7 @@ async def query_dart(request: DartRequest):
                     corp_code = request.corp_code
                 
                 result = dart.company(corp_code)
+                # 딕셔너리를 그대로 반환
                 return {"status": "success", "data": result}
             except Exception as e:
                 raise HTTPException(status_code=404, detail=f"기업 정보를 찾을 수 없습니다: {str(e)}")
@@ -355,14 +357,14 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "disclosure_date_ex":
-            # 13-2. 특정 날짜의 공시 목록 조회 (확장)
+            # 14. 특정 날짜의 공시 목록 조회 (확장)
             date = request.date if request.date else None  # 기본값: 오늘
             
             result = dart.list_date_ex(date)
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "disclosure_ticker":
-            # 14. 특정 종목코드의 공시 목록 조회
+            # 15. 특정 종목코드의 공시 목록 조회
             ticker = request.ticker
             
             # ticker가 입력되지 않았다면 회사명으로 종목코드 또는 고유번호 찾기
@@ -402,7 +404,7 @@ async def query_dart(request: DartRequest):
                 raise HTTPException(status_code=500, detail=f"공시 목록 조회 중 오류 발생: {str(e)}")
             
         elif request.query_type == "sub_docs":
-            # 15. 첨부문서 목록 조회
+            # 16. 첨부문서 목록 조회
             if not request.rcept_no:
                 raise HTTPException(status_code=400, detail="첨부문서 목록 조회에는 접수번호(rcept_no)가 필요합니다.")
             
@@ -410,7 +412,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "attach_docs":
-            # 15-2. 첨부 문서 리스트 조회
+            # 17. 첨부 문서 리스트 조회
             if not request.rcept_no:
                 raise HTTPException(status_code=400, detail="첨부 문서 리스트 조회에는 접수번호(rcept_no)가 필요합니다.")
             
@@ -418,7 +420,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "attach_files":
-            # 15-3. 첨부 파일 리스트 조회
+            # 18. 첨부 파일 리스트 조회
             if not request.rcept_no:
                 raise HTTPException(status_code=400, detail="첨부 파일 리스트 조회에는 접수번호(rcept_no)가 필요합니다.")
             
@@ -426,7 +428,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": result}
             
         elif request.query_type == "download":
-            # 16. 공시 원문 다운로드 URL 제공
+            # 19. 공시 원문 다운로드 URL 제공
             if not request.rcept_no:
                 raise HTTPException(status_code=400, detail="공시 원문 다운로드를 위해서는 접수번호(rcept_no)가 필요합니다.")
             
@@ -434,8 +436,31 @@ async def query_dart(request: DartRequest):
             url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={request.rcept_no}"
             return {"status": "success", "download_url": url}
             
+        elif request.query_type == "document":
+            # 20. 공시서류 원문 조회 (XML)
+            if not request.rcept_no:
+                raise HTTPException(status_code=400, detail="공시서류 원문 조회에는 접수번호(rcept_no)가 필요합니다.")
+            
+            try:
+                result = dart.document(request.rcept_no)
+                return {"status": "success", "data": result}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"공시서류 원문 조회 중 오류 발생: {str(e)}")
+                
+        elif request.query_type == "retrieve":
+            # 21. 공시 원문 텍스트 추출
+            if not request.rcept_no:
+                raise HTTPException(status_code=400, detail="공시 원문 텍스트 추출에는 접수번호(rcept_no)가 필요합니다.")
+            
+            try:
+                extract_text = request.extract_text if request.extract_text is not None else True
+                result = dart.retrieve(request.rcept_no, extract_text=extract_text)
+                return {"status": "success", "data": result}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"공시 원문 텍스트 추출 중 오류 발생: {str(e)}")
+            
         elif request.query_type == "multi_financial":
-            # 17. 다중회사 주요 재무제표 조회
+            # 22. 다중회사 주요 재무제표 조회
             if not request.corp_codes:
                 raise HTTPException(status_code=400, detail="다중회사 재무제표 조회에는 여러 기업코드(corp_codes)가 필요합니다. 콤마로 구분된 문자열 형식으로 제공하세요.")
             
@@ -457,7 +482,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "audit":
-            # 18. 외부감사인 조회
+            # 23. 외부감사인 조회
             if not request.corp_code:
                 # 기업명으로 기업 코드 조회
                 company_info = dart.company_by_name(request.company)
@@ -478,7 +503,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "stock_suspension":
-            # 19. 상장폐지 현황 조회
+            # 24. 상장폐지 현황 조회
             if not request.corp_code:
                 # 기업명으로 기업 코드 조회
                 company_info = dart.company_by_name(request.company)
@@ -495,7 +520,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "stock_change":
-            # 20. 증자(감자) 현황 조회
+            # 25. 증자(감자) 현황 조회
             if not request.corp_code:
                 # 기업명으로 기업 코드 조회
                 company_info = dart.company_by_name(request.company)
@@ -512,7 +537,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "biz_overview":
-            # 21. 사업의 내용 조회
+            # 26. 사업의 내용 조회
             if not request.corp_code:
                 # 기업명으로 기업 코드 조회
                 company_info = dart.company_by_name(request.company)
@@ -531,7 +556,7 @@ async def query_dart(request: DartRequest):
             # rpt_type(보고서 유형)
             rpt_type = request.rpt_type if request.rpt_type else "1"  # 기본값: 사업보고서
             
-            result = dart.report(corp_code, request.bsns_year, "business_content", rpt_type=rpt_type)
+            result = dart.report(corp_code, "business_content", request.bsns_year, reprt_code=request.reprt_code, rpt_type=rpt_type)
             # HTML 형식의 결과 처리
             if isinstance(result, str):
                 return {"status": "success", "data": result}
@@ -539,7 +564,7 @@ async def query_dart(request: DartRequest):
                 return {"status": "success", "data": convert_df_to_json(result)}
                 
         elif request.query_type == "event":
-            # 22. 주요사항보고서 조회
+            # 27. 주요사항보고서 조회
             if not request.corp_code:
                 # 기업명으로 기업 코드 조회
                 company_info = dart.company_by_name(request.company)
@@ -563,7 +588,7 @@ async def query_dart(request: DartRequest):
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "regstate":
-            # 23. 증권신고서 조회
+            # 28. 증권신고서 조회
             if not request.corp_code:
                 # 기업명으로 기업 코드 조회
                 company_info = dart.company_by_name(request.company)
