@@ -70,7 +70,7 @@ powered by OpenDartReader
 
 모든 API 요청은 인증키를 포함해야 합니다. 통합 API(`/api/dart`)는 요청 본문에 인증키를 포함해야 하며, 파일 URL 조회 API는 쿼리 파라미터로 인증키를 전달해야 합니다.
 
-유효한 인증키: `linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
+유효한 인증키: `linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`  (필요에 따라 변경하거나 환경변수로 설정해서 은닉하는 것을 추천 합니다.)
 
 예시:
 ```json
