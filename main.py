@@ -363,14 +363,43 @@ async def query_dart(request: DartRequest):
             
         elif request.query_type == "disclosure_ticker":
             # 14. 특정 종목코드의 공시 목록 조회
-            if not request.ticker:
-                raise HTTPException(status_code=400, detail="특정 종목코드의 공시 목록 조회에는 종목코드(ticker)가 필요합니다.")
+            ticker = request.ticker
             
+            # ticker가 입력되지 않았다면 회사명으로 종목코드 또는 고유번호 찾기
+            if not ticker:
+                try:
+                    # 회사명으로 회사 정보 조회 (상장 여부 확인)
+                    company_info = dart.company_by_name(request.company)
+                    if company_info is None or company_info.empty:
+                        raise HTTPException(status_code=404, detail=f"'{request.company}' 기업을 찾을 수 없습니다.")
+                    
+                    # 종목코드 확인
+                    ticker = company_info.iloc[0]['stock_code'] if 'stock_code' in company_info.columns else None
+                    
+                    # 종목코드가 없거나 비어있으면(비상장 기업) 회사명이나 고유번호를 대신 사용
+                    if not ticker or ticker == "":
+                        # OpenDartReader의 list 함수에 회사명이나 고유번호를 직접 전달
+                        corp_code = company_info.iloc[0]['corp_code'] if 'corp_code' in company_info.columns else None
+                        if not corp_code:
+                            raise HTTPException(status_code=404, detail=f"'{request.company}' 기업의 정보를 찾을 수 없습니다.")
+                        
+                        # 비상장 기업은 list 함수로 조회 (list_ticker 대신)
+                        start = request.start_date
+                        end = request.end_date
+                        result = dart.list(corp_code, start=start, end=end)
+                        return {"status": "success", "data": convert_df_to_json(result)}
+                except Exception as e:
+                    raise HTTPException(status_code=404, detail=f"기업 정보 조회 중 오류 발생: {str(e)}")
+            
+            # 종목코드가 있는 경우(상장 기업) list_ticker 함수 사용
             start = request.start_date
             end = request.end_date
             
-            result = dart.list_ticker(request.ticker, start=start, end=end)
-            return {"status": "success", "data": convert_df_to_json(result)}
+            try:
+                result = dart.list_ticker(ticker, start=start, end=end)
+                return {"status": "success", "data": convert_df_to_json(result)}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"공시 목록 조회 중 오류 발생: {str(e)}")
             
         elif request.query_type == "sub_docs":
             # 15. 첨부문서 목록 조회
