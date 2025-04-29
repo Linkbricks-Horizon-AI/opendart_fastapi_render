@@ -117,10 +117,16 @@ FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템
      "query_type": "report_content",
      "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
      "corp_code": "00126380",
-     "bsns_year": "2024",
+     "bsns_year": "2023",
      "reprt_code": "11011"
    }
    ```
+   
+   **보고서 코드(reprt_code) 값:**
+   - "11011": 사업보고서 (연간)
+   - "11012": 반기보고서
+   - "11013": 1분기보고서
+   - "11014": 3분기보고서
 
 5. **기업 고유번호 조회** (`"query_type": "company_code"`)
    ```json
