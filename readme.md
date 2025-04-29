@@ -1,7 +1,8 @@
 # LINKBRICKS HORIZON AI DART Financial Data API 
-powered by OpenDartReader 
+
 
 Linkbricks Horizon AI가 개발한 FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템의 기업 공시 정보에 접근할 수 있는 API입니다.
+powered by OpenDartReader
 
 ## 기능
 
