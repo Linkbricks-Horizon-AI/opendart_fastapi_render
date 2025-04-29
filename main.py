@@ -119,14 +119,26 @@ async def query_dart(request: DartRequest):
             
         elif request.query_type == "report_content":
             # 4. 사업보고서 내용 조회
+            # 기업명으로 corp_code 자동 조회
             if not request.corp_code:
-                raise HTTPException(status_code=400, detail="사업보고서 조회에는 기업 고유번호(corp_code)가 필요합니다.")
+                # 기업명으로 기업 코드 조회
+                company_info = dart.company_by_name(request.company)
+                if company_info is None or company_info.empty:
+                    raise HTTPException(status_code=404, detail=f"'{request.company}' 기업을 찾을 수 없습니다.")
+                
+                corp_code = company_info.iloc[0]['corp_code'] if 'corp_code' in company_info.columns else None
+                if not corp_code:
+                    raise HTTPException(status_code=404, detail=f"'{request.company}' 기업의 코드를 찾을 수 없습니다.")
+            else:
+                # 사용자가 직접 corp_code를 제공한 경우
+                corp_code = request.corp_code
+                
             if not request.bsns_year:
                 raise HTTPException(status_code=400, detail="사업보고서 조회에는 사업연도(bsns_year)가 필요합니다.")
             if not request.reprt_code:
                 raise HTTPException(status_code=400, detail="사업보고서 조회에는 보고서 코드(reprt_code)가 필요합니다. 예: 11011(사업보고서), 11012(반기보고서), 11013(1분기보고서), 11014(3분기보고서)")
             
-            result = dart.finstate(request.corp_code, request.bsns_year, request.reprt_code)
+            result = dart.finstate(corp_code, request.bsns_year, request.reprt_code)
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "company_code":
