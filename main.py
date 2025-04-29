@@ -41,7 +41,7 @@ class DartRequest(BaseModel):
     separate: Optional[bool] = None  # 개별/연결 구분 (True:개별, False:연결)
     date: Optional[str] = None  # 특정 날짜 (YYYYMMDD)
     ticker: Optional[str] = None  # 종목코드
-    rcp_no: Optional[str] = None  # 접수번호
+    rcept_no: Optional[str] = None  # 접수번호
     includes_exec: Optional[bool] = None  # 임원 포함 여부
     corp_codes: Optional[str] = None  # 복수 회사 코드 (콤마로 구분)
     account_nm: Optional[str] = None  # 계정명
@@ -374,35 +374,35 @@ async def query_dart(request: DartRequest):
             
         elif request.query_type == "sub_docs":
             # 15. 첨부문서 목록 조회
-            if not request.rcp_no:
-                raise HTTPException(status_code=400, detail="첨부문서 목록 조회에는 접수번호(rcp_no)가 필요합니다.")
+            if not request.rcept_no:
+                raise HTTPException(status_code=400, detail="첨부문서 목록 조회에는 접수번호(rcept_no)가 필요합니다.")
             
-            result = dart.sub_docs(request.rcp_no)
+            result = dart.sub_docs(request.rcept_no)
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "attach_docs":
             # 15-2. 첨부 문서 리스트 조회
-            if not request.rcp_no:
-                raise HTTPException(status_code=400, detail="첨부 문서 리스트 조회에는 접수번호(rcp_no)가 필요합니다.")
+            if not request.rcept_no:
+                raise HTTPException(status_code=400, detail="첨부 문서 리스트 조회에는 접수번호(rcept_no)가 필요합니다.")
             
-            result = dart.attach_docs(request.rcp_no)
+            result = dart.attach_docs(request.rcept_no)
             return {"status": "success", "data": convert_df_to_json(result)}
             
         elif request.query_type == "attach_files":
             # 15-3. 첨부 파일 리스트 조회
-            if not request.rcp_no:
-                raise HTTPException(status_code=400, detail="첨부 파일 리스트 조회에는 접수번호(rcp_no)가 필요합니다.")
+            if not request.rcept_no:
+                raise HTTPException(status_code=400, detail="첨부 파일 리스트 조회에는 접수번호(rcept_no)가 필요합니다.")
             
-            result = dart.attach_files(request.rcp_no)
+            result = dart.attach_files(request.rcept_no)
             return {"status": "success", "data": result}
             
         elif request.query_type == "download":
             # 16. 공시 원문 다운로드 URL 제공
-            if not request.rcp_no:
-                raise HTTPException(status_code=400, detail="공시 원문 다운로드를 위해서는 접수번호(rcp_no)가 필요합니다.")
+            if not request.rcept_no:
+                raise HTTPException(status_code=400, detail="공시 원문 다운로드를 위해서는 접수번호(rcept_no)가 필요합니다.")
             
             # 다운로드 URL 생성
-            url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={request.rcp_no}"
+            url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={request.rcept_no}"
             return {"status": "success", "download_url": url}
             
         elif request.query_type == "multi_financial":
@@ -568,15 +568,15 @@ async def query_dart(request: DartRequest):
         raise HTTPException(status_code=500, detail=f"데이터 조회 중 오류 발생: {str(e)}")
 
 # 첨부파일 다운로드 URL 조회 엔드포인트
-@app.get("/api/dart/file/{rcp_no}")
-async def get_file_url(rcp_no: str, auth_key: str):
+@app.get("/api/dart/file/{rcept_no}")
+async def get_file_url(rcept_no: str, auth_key: str):
     # 인증키 확인
     if auth_key != REQUIRED_AUTH_KEY:
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
     
     try:
         # 첨부파일 URL 생성 (OpenDartReader 라이브러리 참조 불필요)
-        url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcp_no}"
+        url = f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={rcept_no}"
         return {"status": "success", "download_url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"첨부파일 URL 조회 중 오류 발생: {str(e)}")
