@@ -1,7 +1,7 @@
 # LINKBRICKS HORIZON-AI DART Financial Data API
 
-LINKBRICKS HORIZON-AI가 개발한 FastAPI 애플리케이션을 사용하여 한국 금융감독원 DART 시스템의 기업 공시 정보에 접근할 수 있는 API입니다.
-powered by OpenDartReader
+LINKBRICKS HORIZON-AI가 개발한 FastAPI 기반 애플리케이션을 사용하여 한국 금융감독원 DART 시스템의 기업 공시 정보에 접근할 수 있는 API입니다.
+(powered by OpenDartReader)
 
 ## 기능
 
@@ -106,7 +106,7 @@ powered by OpenDartReader
 
 ### 2. 첨부파일 다운로드 URL 조회
 
-**GET** `/api/dart/file/{rcp_no}?auth_key=linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
+**GET** `/api/dart/file/{rcept_no}?auth_key=linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%`
 
 특정 공시 보고서의 첨부파일 다운로드 URL을 제공합니다. 인증키는 쿼리 파라미터로 전달합니다.
 
@@ -336,12 +336,12 @@ powered by OpenDartReader
   "company": "삼성전자",
   "query_type": "sub_docs",
   "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
-  "rcp_no": "20230515001050"
+  "rcept_no": "20230515001050"
 }
 ```
 
 **참고:**
-- `rcp_no`는 공시 접수번호를 의미합니다.
+- `rcept_no`는 공시 접수번호를 의미합니다.
 
 ### 19. 첨부 문서 리스트 조회 (`attach_docs`)
 ```json
@@ -349,12 +349,12 @@ powered by OpenDartReader
   "company": "삼성전자",
   "query_type": "attach_docs",
   "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
-  "rcp_no": "20230515001050"
+  "rcept_no": "20230515001050"
 }
 ```
 
 **참고:**
-- `rcp_no`는 공시 접수번호를 의미합니다.
+- `rcept_no`는 공시 접수번호를 의미합니다.
 
 ### 20. 첨부 파일 리스트 조회 (`attach_files`)
 ```json
@@ -362,12 +362,12 @@ powered by OpenDartReader
   "company": "삼성전자",
   "query_type": "attach_files",
   "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
-  "rcp_no": "20230515001050"
+  "rcept_no": "20230515001050"
 }
 ```
 
 **참고:**
-- `rcp_no`는 공시 접수번호를 의미합니다.
+- `rcept_no`는 공시 접수번호를 의미합니다.
 
 ### 21. 공시 원문 다운로드 URL 제공 (`download`)
 ```json
@@ -375,12 +375,12 @@ powered by OpenDartReader
   "company": "삼성전자",
   "query_type": "download",
   "auth_key": "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%",
-  "rcp_no": "20230515001050"
+  "rcept_no": "20230515001050"
 }
 ```
 
 **참고:**
-- `rcp_no`는 공시 접수번호를 의미합니다.
+- `rcept_no`는 공시 접수번호를 의미합니다.
 
 ### 22. 다중회사 재무제표 조회 (`multi_financial`)
 ```json
