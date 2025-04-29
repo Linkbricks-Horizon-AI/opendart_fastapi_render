@@ -20,8 +20,10 @@ SWAGGER_HEADERS = {
 
 app = FastAPI(**SWAGGER_HEADERS)
 
-# 고정 인증키 사용
-REQUIRED_AUTH_KEY = "linkbricks-saxoji-benedict-ji-01034726435!@#$%231%$#@%"
+# 환경변수에서 인증키 가져오기
+REQUIRED_AUTH_KEY = os.environ.get("REQUIRED_AUTH_KEY", "")
+if not REQUIRED_AUTH_KEY:
+    print("경고: 환경변수 REQUIRED_AUTH_KEY가 설정되지 않았습니다. API 인증이 작동하지 않을 수 있습니다.")
 
 # 입력 모델 정의
 class DartRequest(BaseModel):
@@ -89,6 +91,9 @@ async def root():
 @app.post("/api/dart")
 async def query_dart(request: DartRequest):
     # 인증키 확인
+    if not REQUIRED_AUTH_KEY:
+        raise HTTPException(status_code=500, detail="서버 설정 오류: 환경변수 REQUIRED_AUTH_KEY가 설정되지 않았습니다.")
+    
     if request.auth_key != REQUIRED_AUTH_KEY:
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
     
@@ -625,6 +630,9 @@ async def query_dart(request: DartRequest):
 @app.get("/api/dart/file/{rcept_no}")
 async def get_file_url(rcept_no: str, auth_key: str):
     # 인증키 확인
+    if not REQUIRED_AUTH_KEY:
+        raise HTTPException(status_code=500, detail="서버 설정 오류: 환경변수 REQUIRED_AUTH_KEY가 설정되지 않았습니다.")
+    
     if auth_key != REQUIRED_AUTH_KEY:
         raise HTTPException(status_code=403, detail="인증키가 유효하지 않습니다.")
     
